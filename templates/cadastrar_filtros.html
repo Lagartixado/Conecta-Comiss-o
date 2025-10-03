@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Filtros</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        body {
+            background: linear-gradient(135deg, #060049 0%, #0a0080 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin: 40px auto;
+        }
+
+        .container h1 {
+            text-align: center;
+            color: #060049;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #060049;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #060049;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(6, 0, 73, 0.1);
+        }
+
+        .form-group select {
+            cursor: pointer;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #060049, #0a0080);
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(6, 0, 73, 0.3);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #060049;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #0a0080;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px auto;
+                padding: 20px;
+            }
+
+            .container h1 {
+                font-size: 2rem;
+            }
+
+            .form-group input,
+            .form-group select {
+                padding: 12px;
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container" style="display: flex; justify-content: center; gap: 20px; flex-wrap: nowrap; padding: 10px 20px; min-height: 100vh; background: linear-gradient(135deg, #060049 0%, #0a0080 100%); max-width: 1000px; margin: 0 auto;">
+        <div class="form-container" style="background: white; border-radius: 15px; padding: 15px 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); width: 350px; flex-shrink: 0; max-height: 500px; overflow-y: auto;">
+            <h1 style="text-align: center; color: #060049; font-size: 2.2rem; margin-bottom: 15px; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);"><i class='bx bxs-filter-alt'></i> Cadastrar Itens</h1>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div id="flash-popup" style="position:fixed; top:40px; left:50%; transform:translateX(-50%); z-index:2000;">
+                        {% for category, message in messages %}
+                            <div class="flash-popup {{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <script>
+                        setTimeout(function() {
+                            var popup = document.getElementById('flash-popup');
+                            if (popup) popup.style.display = 'none';
+                        }, 4000);
+                    </script>
+                    <style>
+                        @keyframes fadeOutFlash {
+                            to { opacity: 0; }
+                        }
+                        .flash-popup {
+                            color: #fff;
+                            padding: 16px 32px;
+                            border-radius: 12px;
+                            font-size: 1.15rem;
+                            margin: 8px 0;
+                            animation: fadeOutFlash 0.5s linear 3.5s forwards;
+                        }
+                        .flash-popup.success {
+                            background: #28a745;
+                            box-shadow: 0 4px 16px rgba(40,167,69,0.15);
+                        }
+                        .flash-popup.error {
+                            background: #dc3545;
+                            box-shadow: 0 4px 16px rgba(220,53,69,0.15);
+                        }
+                    </style>
+                {% endif %}
+            {% endwith %}
+            <form method="POST" action="{{ url_for('cadastrar_filtros') }}">
+                <div class="form-group">
+                    <label for="nomef"><i class='bx bx-tag'></i> Item:</label>
+                    <input type="text" id="nomef" name="nomef" placeholder="Digite o nome do item" required>
+                </div>
+                <div class="form-group">
+                    <label for="tipof"><i class='bx bx-category'></i> Categoria:</label>
+                    <select id="tipof" name="tipof" required>
+                        <option value="" disabled selected>Atribua uma categoria ao item</option>
+                        <option value="Eventos">Eventos</option>
+                        <option value="Rifas">Rifas</option>
+                        <option value="Produtos">Produtos</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn"><i class='bx bx-plus-circle'></i> Cadastrar Filtro</button>
+            </form>
+            <a href="{{ url_for('home') }}" class="back-link" style="display: inline-block; margin-top: 15px; color: #060049; text-decoration: none; font-weight: 600; transition: color 0.3s ease;"><i class='bx bx-arrow-back'></i> Voltar ao Início</a>
+        </div>
+        {% if filtros %}
+        <div class="table-container" style="background: white; border-radius: 20px; padding: 15px 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1); width: 550px; flex-shrink: 0; overflow-x: auto; max-height: 500px; overflow-y: auto;">
+            <header class="table-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #f1f3f4;">
+                <h2 style="color: #060049; font-size: 1.6rem; font-weight: 700; display: flex; align-items: center; gap: 12px;">
+                    <i class='bx bx-list-ul'></i>
+                    Itens Cadastrados
+                    <span class="badge" style="background: linear-gradient(135deg, #060049, #0a0080); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-left: 12px;">
+                        {{ filtros|length }} registro{{ 's' if filtros|length != 1 else '' }}
+                    </span>
+                </h2>
+            </header>
+            <table class="turmas-table" style="width: 100%; border-collapse: separate; border-spacing: 0; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); margin-bottom: 0;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome do Item</th>
+                        <th>Categoria</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for filtro in filtros %}
+                    <tr>
+                        <td class="id-cell" style="font-weight: 600; color: #060049; font-family: 'Courier New', monospace;">{{ filtro.id }}</td>
+                        <td class="name-cell" style="font-weight: 500;">{{ filtro.nome }}</td>
+                        <td class="name-cell" style="font-weight: 500;">{{ filtro.tipo }}</td>
+                        <td>
+                            <div class="action-buttons" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                                <form method="POST" action="{{ url_for('deletar_filtro', filtro_id=filtro.id) }}" style="display: inline;" onsubmit="return confirmDelete()">
+                                    <button type="submit" class="btn-delete" style="background: linear-gradient(135deg, #dc3545, #c82333); color: white; padding: 8px 16px; border: none; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s ease;">
+                                        <i class='bx bx-trash'></i> Excluir
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+    <script>
+        function confirmDelete() {
+            return confirm('Tem certeza de que deseja excluir este filtro? Esta ação não pode ser desfeita.');
+        }
+    </script>
+    <style>
+        .turmas-table th {
+            background: linear-gradient(135deg, #060049, #0a0080);
+            color: white;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+        }
+        .turmas-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f1f3f4;
+            vertical-align: middle;
+        }
+        .turmas-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        .btn-delete:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        @media (max-width: 768px) {
+            .page-container {
+                flex-direction: column;
+                padding: 20px;
+            }
+            .form-container, .table-container {
+                max-width: 100%;
+                flex: 1 1 100%;
+            }
+        }
+    </style>
+</body>
+</html>

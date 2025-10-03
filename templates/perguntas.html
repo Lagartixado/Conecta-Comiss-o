@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perguntas e Respostas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background: linear-gradient(135deg, #060049 0%, #0a0080 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .qa_container {
+            width: 100%;
+            max-width: 900px;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+        }
+        .qa_header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .qa_header h1 {
+            color: #060049;
+            font-size: 2rem;
+            margin: 0;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        .tab-btn {
+            padding: 10px 28px;
+            border-radius: 18px;
+            border: none;
+            background: #f8f9fa;
+            color: #060049;
+            font-weight: 600;
+            font-size: 1.08rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg,#060049,#0a0080);
+            color: #fff;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .question-form {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 24px 28px;
+            box-shadow: 0 2px 8px rgba(6,0,73,0.07);
+            margin-bottom: 24px;
+        }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { font-weight: 600; color: #060049; margin-bottom: 6px; display: block; }
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            min-height: 80px;
+        }
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 18px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #1e7e34;
+            transform: translateY(-2px);
+        }
+        .qa-table {
+            width: 100%;
+            max-width: 100%;
+            /* Remove scroll */
+            overflow-x: visible;
+            display: table;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 8px rgba(6,0,73,0.07);
+            margin-top: 10px;
+            /* Remove overflow hidden to allow scrolling */
+            /* overflow: hidden; */
+        }
+        .qa-table th, .qa-table td {
+            padding: 16px 14px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 1rem;
+        }
+        .qa-table th {
+            background: linear-gradient(135deg, #060049, #0a0080);
+            color: #fff;
+            font-weight: 700;
+            border: none;
+        }
+        .qa-table tr {
+            transition: background 0.2s;
+        }
+        .qa-table tr:nth-child(even) td {
+            background: #f8f9fa;
+        }
+        .qa-table tr:nth-child(odd) td {
+            background: #f0f0f8;
+        }
+        .qa-table tr:hover td {
+            background: #e9ecef;
+        }
+        .qa-table td {
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .qa-table tr:last-child td {
+            border-bottom: none;
+        }
+        .qa-table th:first-child {
+            border-radius: 12px 0 0 0;
+        }
+        .qa-table th:last-child {
+            border-radius: 0 12px 0 0;
+        }
+    </style>
+    <script>
+        // Definir se é admin
+        var isAdmin = {{ 'true' if session.get('tipo_usuario') == 'admin' else 'false' }};
+        function showTab(tab) {
+            document.getElementById('tab-perguntar').classList.remove('active');
+            document.getElementById('tab-respostas').classList.remove('active');
+            if (isAdmin) {
+                document.getElementById('tab-inativas').classList.remove('active');
+            }
+            document.getElementById('content-perguntar').classList.remove('active');
+            document.getElementById('content-respostas').classList.remove('active');
+            if (isAdmin) {
+                document.getElementById('content-inativas').classList.remove('active');
+            }
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('content-' + tab).classList.add('active');
+        }
+    </script>
+</head>
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="flash-popup" style="position:fixed; top:40px; left:50%; transform:translateX(-50%); z-index:2000;">
+                {% for category, message in messages %}
+                    <div class="flash-popup {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+            <script>
+                setTimeout(function() {
+                    var popup = document.getElementById('flash-popup');
+                    if (popup) popup.style.display = 'none';
+                }, 4000);
+            </script>
+            <style>
+                @keyframes fadeOutFlash {
+                    to { opacity: 0; }
+                }
+                .flash-popup {
+                    color: #fff;
+                    padding: 16px 32px;
+                    border-radius: 12px;
+                    font-size: 1.15rem;
+                    margin: 8px 0;
+                    animation: fadeOutFlash 0.5s linear 3.5s forwards;
+                }
+                .flash-popup.success {
+                    background: #28a745;
+                    box-shadow: 0 4px 16px rgba(40,167,69,0.15);
+                }
+                .flash-popup.error {
+                    background: #dc3545;
+                    box-shadow: 0 4px 16px rgba(220,53,69,0.15);
+                }
+            </style>
+        {% endif %}
+    {% endwith %}
+    <div class="qa_container">
+        <div class="qa_header">
+            <i class='bx bx-question-mark' style="font-size:2.2rem;color:#EE8F00;"></i>
+            <h1>Perguntas e Respostas</h1>
+            <a href="{{ url_for('home') }}" class="btn" style="margin-left:auto; background: linear-gradient(135deg, #e0e0e0, #f8f9fa); color: #060049; border: 2px solid #060049; font-weight: 600;">
+                <i class='bx bx-arrow-back'></i> Voltar à Home
+            </a>
+        </div>
+        <div class="tabs">
+            <button id="tab-perguntar" class="tab-btn active" onclick="showTab('perguntar')"><i class='bx bx-edit'></i> Fazer Pergunta</button>
+            <button id="tab-respostas" class="tab-btn" onclick="showTab('respostas')"><i class='bx bx-message-square-dots'></i> Respostas</button>
+            {% if session.get('tipo_usuario') == 'admin' %}
+            <button id="tab-inativas" class="tab-btn" onclick="showTab('inativas')"><i class='bx bx-hide'></i> Perguntas Inativas</button>
+            {% endif %}
+        </div>
+        <div id="content-perguntar" class="tab-content active">
+            <form class="question-form" method="POST" action="{{ url_for('fazer_pergunta') }}">
+                <div class="form-group">
+                    <label for="pergunta">Sua pergunta (máx. 200 caracteres):</label>
+                    <textarea id="pergunta" name="pergunta" required maxlength="200" oninput="atualizarContagem()"></textarea>
+                    <div id="contador" style="text-align:right; color:#666; font-size:0.98rem; margin-top:4px;">0/200 caracteres</div>
+                </div>
+                <script>
+                    function atualizarContagem() {
+                        var textarea = document.getElementById('pergunta');
+                        var contador = document.getElementById('contador');
+                        contador.textContent = textarea.value.length + '/200 caracteres';
+                    }
+                    document.addEventListener('DOMContentLoaded', function() {
+                        atualizarContagem();
+                    });
+                </script>
+                </div>
+                <div class="form-group">
+                    {% if session.get('tipo_usuario') == 'admin' %}
+                        <label for="privacidade">Privacidade:</label>
+                        <select id="privacidade" name="privacidade" required>
+                            <option value="publica">Pública (todos podem ver)</option>
+                            <option value="privada" selected>Privada (apenas você verá a resposta)</option>
+                        </select>
+                    {% else %}
+                        <input type="hidden" id="privacidade" name="privacidade" value="privada">
+                    {% endif %}
+                </div>
+                <button type="submit" class="btn btn-primary"><i class='bx bx-send'></i> Enviar Pergunta</button>
+            </form>
+        </div>
+        <div id="content-respostas" class="tab-content">
+            <table class="qa-table">
+                <thead>
+                    <tr>
+                        <th>Pergunta</th>
+                        <th>Resposta</th>
+                        <th>Privacidade</th>
+                        <th>Administrador</th>
+                        {% if session.get('tipo_usuario') == 'admin' %}
+                        <th>Autor</th>
+                        <th>Ações</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for qa in perguntas_respostas %}
+                        {% if qa.privacidade == 'publica' or (qa.privacidade == 'privada' and qa.matricula == session.get('matricula')) or session.get('tipo_usuario') == 'admin' %}
+                        <tr>
+                            <td>{{ qa.pergunta }}</td>
+                            <td>
+                                {% if qa.resposta %}
+                                    <div style="white-space: normal; word-wrap: break-word; max-width: 300px;">
+                                        {{ qa.resposta }}
+                                    </div>
+                                {% elif session.get('tipo_usuario') == 'admin' %}
+                                    <form method="POST" action="{{ url_for('responder_pergunta', pergunta_id=qa.id) }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:6px; max-width: 300px;">
+                                        <input type="text" name="resposta" placeholder="Digite a resposta..." required style="padding:6px 10px;border-radius:8px;border:1px solid #ccc;width:100%; font-size: 1rem;">
+                                        <button type="submit" class="btn btn-primary" style="margin-top:4px; align-self: flex-end;"><i class='bx bx-send'></i> Responder</button>
+                                    </form>
+                                {% else %}
+                                    <span style="color: #666; font-style: italic;">Aguardando resposta...</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ 'Pública' if qa.privacidade == 'publica' else 'Privada' }}</td>
+                            <td>{{ qa.admin_nome or '-' }}</td>
+                            {% if session.get('tipo_usuario') == 'admin' %}
+                            <td>{{ qa.autor_nome or qa.autor_login or '-' }}</td>
+                            <td>
+                                {% if qa.resposta %}
+                                <form method="POST" action="{{ url_for('alterar_privacidade', pergunta_id=qa.id) }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:6px; margin-bottom: 8px;">
+                                    <label for="nova_privacidade_{{ qa.id }}" style="font-weight: 600; font-size: 0.9rem;">Privacidade:</label>
+                                    <select id="nova_privacidade_{{ qa.id }}" name="nova_privacidade" required style="padding: 4px 8px; border-radius: 8px; border: 1px solid #ccc; font-weight: 600; font-size: 0.9rem; background-color: #f0f4ff; color: #060049;">
+                                        <option value="publica" {% if qa.privacidade == 'publica' %}selected{% endif %}>Pública</option>
+                                        <option value="privada" {% if qa.privacidade == 'privada' %}selected{% endif %}>Privada</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.9rem; border-radius: 10px; font-weight: 700; background: linear-gradient(135deg, #28a745, #1e7e34); box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4); transition: background-color 0.3s ease;">
+                                        <i class='bx bx-refresh'></i> Alterar
+                                    </button>
+                                </form>
+                                {% endif %}
+                                <button class="btn" style="background:linear-gradient(135deg,#dc3545,#c82333);color:#fff;" onclick="abrirModalExcluir('{{ qa.id }}')">
+                                    <i class='bx bx-trash'></i> Excluir
+                                </button>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endif %}
+                    {% else %}
+                        <tr><td colspan="6">Nenhuma pergunta encontrada.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if session.get('tipo_usuario') == 'admin' %}
+        <div id="content-inativas" class="tab-content">
+            <table class="qa-table">
+                <thead>
+                    <tr>
+                        <th>Pergunta</th>
+                        <th>Resposta</th>
+                        <th>Privacidade</th>
+                        <th>Administrador</th>
+                        <th>Autor</th>
+                        <th>Justificativa Exclusão</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for qa in perguntas_inativas %}
+                    <tr>
+                        <td>{{ qa.pergunta }}</td>
+                        <td>{{ qa.resposta or '-' }}</td>
+                        <td>{{ 'Pública' if qa.privacidade == 'publica' else 'Privada' }}</td>
+                        <td>{{ qa.admin_nome or '-' }}</td>
+                        <td>{{ qa.autor_nome or qa.autor_login or '-' }}</td>
+                        <td>{{ qa.justificativa_exclusao or '-' }}</td>
+                    </tr>
+                    {% else %}
+                        <tr><td colspan="7">Nenhuma pergunta inativa encontrada.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+<!-- Modal de exclusão -->
+<div id="modalExcluir" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(6,0,73,0.35);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:18px;padding:32px 28px;max-width:400px;width:90vw;box-shadow:0 8px 32px rgba(6,0,73,0.18);position:relative;">
+        <span style="position:absolute;top:12px;right:18px;font-size:2rem;color:#060049;cursor:pointer;font-weight:bold;" onclick="fecharModalExcluir()">&times;</span>
+        <h2 style="color:#dc3545;margin-bottom:18px;"><i class='bx bx-trash'></i> Excluir Pergunta</h2>
+        <form id="formExcluir" method="POST" action="">
+            <div class="form-group">
+                <label for="motivo_exclusao">Motivo da exclusão:</label>
+                <textarea id="motivo_exclusao" name="motivo_exclusao" required maxlength="200" style="width:100%;padding:10px;border-radius:8px;border:2px solid #ddd;"></textarea>
+            </div>
+            <div style="display:flex;gap:16px;justify-content:center;margin-top:18px;">
+                <button type="submit" class="btn" style="background:linear-gradient(135deg,#dc3545,#c82333);color:#fff;"><i class='bx bx-trash'></i> Confirmar Exclusão</button>
+                <button type="button" class="btn" style="background:linear-gradient(135deg,#e0e0e0,#f8f9fa);color:#060049;border:2px solid #060049;" onclick="fecharModalExcluir()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    let perguntaExcluirId = null;
+    function abrirModalExcluir(id) {
+        perguntaExcluirId = id;
+        document.getElementById('formExcluir').action = `/excluir_pergunta/${id}`;
+        document.getElementById('motivo_exclusao').value = '';
+        document.getElementById('modalExcluir').style.display = 'flex';
+    }
+    function fecharModalExcluir() {
+        document.getElementById('modalExcluir').style.display = 'none';
+    }
+</script>
+    </div>
+</body>
+</html>
