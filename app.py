@@ -36,7 +36,7 @@ def conexao_mysql():
     conn = mysql.connector.connect(
         host="127.0.0.1",
         user="root",
-        password="aluno",
+        password="root",
         database="conectac"
     )
     cursor = conn.cursor()
@@ -124,20 +124,35 @@ def fundo_comissao():
     cursor.execute("SELECT DISTINCT tipo FROM despesas ORDER BY tipo")
     sub_tipos_despesa = cursor.fetchall()
 
-    # Buscar produtos de ambas as tabelas
-    cursor.execute("SELECT DISTINCT produto FROM despesas WHERE produto IS NOT NULL ORDER BY produto")
-    produtos_despesas = cursor.fetchall()
-    cursor.execute("SELECT DISTINCT produto FROM arrecadacoes WHERE produto IS NOT NULL ORDER BY produto")
-    produtos_arrecadacoes = cursor.fetchall()
-    # Combinar os resultados removendo duplicatas
-    produtos_set = set()
-    for p in produtos_despesas:
-        if p['produto']:
-            produtos_set.add(p['produto'])
-    for p in produtos_arrecadacoes:
-        if p['produto']:
-            produtos_set.add(p['produto'])
-    produtos = [{'produto': p} for p in sorted(produtos_set)]
+    # Buscar produtos de ambas as tabelas, filtrados por categoria se selecionada
+    if filtro_categoria in ['Eventos', 'Rifas', 'Produtos']:
+        cursor.execute("SELECT DISTINCT produto FROM despesas WHERE tipo = %s AND produto IS NOT NULL ORDER BY produto", (filtro_categoria,))
+        produtos_despesas = cursor.fetchall()
+        cursor.execute("SELECT DISTINCT produto FROM arrecadacoes WHERE tipo = %s AND produto IS NOT NULL ORDER BY produto", (filtro_categoria,))
+        produtos_arrecadacoes = cursor.fetchall()
+        # Combinar os resultados removendo duplicatas
+        produtos_set = set()
+        for p in produtos_despesas:
+            if p['produto']:
+                produtos_set.add(p['produto'])
+        for p in produtos_arrecadacoes:
+            if p['produto']:
+                produtos_set.add(p['produto'])
+        produtos = [{'produto': p} for p in sorted(produtos_set)]
+    else:
+        cursor.execute("SELECT DISTINCT produto FROM despesas WHERE produto IS NOT NULL ORDER BY produto")
+        produtos_despesas = cursor.fetchall()
+        cursor.execute("SELECT DISTINCT produto FROM arrecadacoes WHERE produto IS NOT NULL ORDER BY produto")
+        produtos_arrecadacoes = cursor.fetchall()
+        # Combinar os resultados removendo duplicatas
+        produtos_set = set()
+        for p in produtos_despesas:
+            if p['produto']:
+                produtos_set.add(p['produto'])
+        for p in produtos_arrecadacoes:
+            if p['produto']:
+                produtos_set.add(p['produto'])
+        produtos = [{'produto': p} for p in sorted(produtos_set)]
 
     # Buscar itens por tipo
     cursor.execute("SELECT DISTINCT tipo, item FROM despesas WHERE item IS NOT NULL AND item != '' ORDER BY tipo, item")
@@ -365,10 +380,12 @@ def registrar_arrecadacao():
 
     conn = conexao_mysql()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT matricula, nome FROM alunos ORDER BY nome")
+    cursor.execute("SELECT matricula, nome, id_turma FROM alunos ORDER BY nome")
     alunos = cursor.fetchall()
     cursor.execute("SELECT nome, tipo FROM filtros ORDER BY tipo, nome")
     filtros = cursor.fetchall()
+    cursor.execute("SELECT id_turma, nome FROM turmas ORDER BY nome")
+    turmas = cursor.fetchall()
 
     if request.method == 'POST':
         matricula = request.form['matricula']
@@ -397,7 +414,7 @@ def registrar_arrecadacao():
 
     cursor.close()
     conn.close()
-    return render_template('registrar_arrecadacao.html', alunos=alunos, filtros=filtros, data_hoje=date.today().isoformat())
+    return render_template('registrar_arrecadacao.html', alunos=alunos, filtros=filtros, turmas=turmas, data_hoje=date.today().isoformat())
 
 @app.route('/')
 def index():
@@ -1222,38 +1239,10 @@ def get_produtos_por_categoria(categoria):
     cursor = conn.cursor(dictionary=True)
 
     # Buscar produtos únicos da categoria selecionada em ambas as tabelas (despesas e arrecadações)
-    if categoria == 'Eventos':
-        cursor.execute("SELECT DISTINCT produto FROM despesas WHERE tipo = 'Eventos' AND produto IS NOT NULL ORDER BY produto", (categoria,))
+    if categoria in ['Eventos', 'Rifas', 'Produtos']:
+        cursor.execute("SELECT DISTINCT produto FROM despesas WHERE tipo = %s AND produto IS NOT NULL ORDER BY produto", (categoria,))
         produtos_despesas = cursor.fetchall()
-        cursor.execute("SELECT DISTINCT produto FROM arrecadacoes WHERE tipo = 'Eventos' AND produto IS NOT NULL ORDER BY produto", (categoria,))
-        produtos_arrecadacoes = cursor.fetchall()
-        # Combinar os resultados removendo duplicatas
-        produtos_set = set()
-        for p in produtos_despesas:
-            if p['produto']:
-                produtos_set.add(p['produto'])
-        for p in produtos_arrecadacoes:
-            if p['produto']:
-                produtos_set.add(p['produto'])
-        produtos = [{'produto': p} for p in sorted(produtos_set)]
-    elif categoria == 'Rifas':
-        cursor.execute("SELECT DISTINCT produto FROM despesas WHERE tipo = 'Rifas' AND produto IS NOT NULL ORDER BY produto", (categoria,))
-        produtos_despesas = cursor.fetchall()
-        cursor.execute("SELECT DISTINCT produto FROM arrecadacoes WHERE tipo = 'Rifas' AND produto IS NOT NULL ORDER BY produto", (categoria,))
-        produtos_arrecadacoes = cursor.fetchall()
-        # Combinar os resultados removendo duplicatas
-        produtos_set = set()
-        for p in produtos_despesas:
-            if p['produto']:
-                produtos_set.add(p['produto'])
-        for p in produtos_arrecadacoes:
-            if p['produto']:
-                produtos_set.add(p['produto'])
-        produtos = [{'produto': p} for p in sorted(produtos_set)]
-    elif categoria == 'Produtos':
-        cursor.execute("SELECT DISTINCT produto FROM despesas WHERE tipo = 'Produtos' AND produto IS NOT NULL ORDER BY produto", (categoria,))
-        produtos_despesas = cursor.fetchall()
-        cursor.execute("SELECT DISTINCT produto FROM arrecadacoes WHERE tipo = 'Produtos' AND produto IS NOT NULL ORDER BY produto", (categoria,))
+        cursor.execute("SELECT DISTINCT produto FROM arrecadacoes WHERE tipo = %s AND produto IS NOT NULL ORDER BY produto", (categoria,))
         produtos_arrecadacoes = cursor.fetchall()
         # Combinar os resultados removendo duplicatas
         produtos_set = set()

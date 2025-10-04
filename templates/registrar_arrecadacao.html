@@ -156,11 +156,20 @@
         <form method="post" action="{{ url_for('registrar_arrecadacao') }}">
             <div class="form-grid">
                 <div class="input-box2">
+                    <label for="turma">Turma:</label>
+                    <select name="turma" id="turma" required>
+                        <option value="" disabled selected>Selecione a turma</option>
+                        {% for turma in turmas %}
+                        <option value="{{ turma.id_turma }}">{{ turma.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="input-box2">
                     <label for="matricula">Aluno (Matrícula):</label>
-                    <select name="matricula" id="matricula" required>
-                        <option value="" disabled selected>Selecione o aluno</option>
+                    <select name="matricula" id="matricula" required disabled>
+                        <option value="" disabled selected>Primeiro selecione a turma</option>
                         {% for aluno in alunos %}
-                        <option value="{{ aluno.matricula }}">{{ aluno.nome }} ({{ aluno.matricula }})</option>
+                        <option value="{{ aluno.matricula }}" data-id_turma="{{ aluno.id_turma }}">{{ aluno.nome }} ({{ aluno.matricula }})</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -200,6 +209,35 @@
             </div>
         </form>
     </div>
+
+    <script>
+        // Store original student options on page load
+        const matriculaSelect = document.getElementById('matricula');
+        const originalAlunoOptions = Array.from(matriculaSelect.querySelectorAll('option[data-id_turma]'));
+
+        document.getElementById('turma').addEventListener('change', function() {
+            const turmaSelecionada = this.value;
+
+            if (turmaSelecionada) {
+                // Limpar opções existentes
+                matriculaSelect.innerHTML = '<option value="" disabled selected>Selecione o aluno</option>';
+
+                // Adicionar opções filtradas a partir da lista original
+                originalAlunoOptions.forEach(option => {
+                    if (option.getAttribute('data-id_turma') == turmaSelecionada) {
+                        matriculaSelect.appendChild(option.cloneNode(true));
+                    }
+                });
+
+                // Habilitar o select de matricula
+                matriculaSelect.disabled = false;
+            } else {
+                // Se nenhuma turma foi selecionada, desabilitar o select de matricula
+                matriculaSelect.innerHTML = '<option value="" disabled selected>Primeiro selecione a turma</option>';
+                matriculaSelect.disabled = true;
+            }
+        });
+    </script>
 
     <script>
         document.getElementById('tipo').addEventListener('change', function() {
