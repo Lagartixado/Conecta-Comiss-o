@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking - Sistema de Arrecadações</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        body {
+            background: linear-gradient(135deg, #060049 0%, #0a0080 100%);
+            min-height: 100vh;
+            padding: 20px;
+            font-family: 'Noto Sans', sans-serif;
+        }
+
+        .letreiro {
+            width: 100%;
+            height: 20px;
+            background-color: rgb(238, 143, 0);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .ranking-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .ranking-header {
+            background: linear-gradient(135deg, #EE8F00 0%, #ff9500 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .ranking-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .ranking-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .ranking-header i {
+            color: #FFD700;
+            margin-right: 10px;
+        }
+
+        .ranking-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .ranking-section h3 {
+            color: #060049;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .ranking-section h3 i {
+            color: #EE8F00;
+            margin-right: 10px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+        }
+
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .ranking-table th {
+            background: linear-gradient(135deg, #060049 0%, #0a0080 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .ranking-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .ranking-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .position-cell {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .position-1 {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: white;
+        }
+
+        .position-2 {
+            background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);
+            color: white;
+        }
+
+        .position-3 {
+            background: linear-gradient(135deg, #CD7F32 0%, #A0522D 100%);
+            color: white;
+        }
+
+        .trophy-cell {
+            text-align: center;
+        }
+
+        .trophy-icon {
+            font-size: 1.5rem;
+        }
+
+        .badge-custom {
+            background: linear-gradient(135deg, #EE8F00 0%, #ff9500 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .btn-custom {
+            background: linear-gradient(135deg, #EE8F00 0%, #ff9500 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(238, 143, 0, 0.4);
+            color: white;
+        }
+
+        .btn-secondary-custom {
+            background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
+        }
+
+        .btn-secondary-custom:hover {
+            background: linear-gradient(135deg, #545b62 0%, #495057 100%);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+        }
+
+        .alert-custom {
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+            color: #0c5460;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #b8daff;
+            text-align: center;
+        }
+
+        .alert-custom i {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .ranking-container {
+                margin: 20px auto;
+                padding: 10px;
+            }
+
+            .ranking-header {
+                padding: 25px;
+            }
+
+            .ranking-header h2 {
+                font-size: 2rem;
+            }
+
+            .ranking-section {
+                padding: 20px;
+            }
+
+            .ranking-table th,
+            .ranking-table td {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+
+            .position-cell {
+                font-size: 1rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn-custom {
+                width: 100%;
+                max-width: 250px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ranking-container">
+        <div class="ranking-header">
+            <h2>
+                <i class='bx bxs-trophy'></i>
+                Ranking de Arrecadações - Rifas
+            </h2>
+            <p>Classificação baseada no total arrecadado em rifas</p>
+        </div>
+
+        <div class="ranking-section">
+            <h3>
+                <i class='bx bx-list-ul'></i>
+                Classificação Geral
+            </h3>
+
+            {% if ranking %}
+            <div class="table-container">
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th class="position-cell">#</th>
+                            <th class="trophy-cell">Posição</th>
+                            <th>Nome</th>
+                            <th>Turma</th>
+                            <th>Total em Rifas</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for aluno in ranking %}
+                        <tr class="{% if loop.index == 1 %}position-1{% elif loop.index == 2 %}position-2{% elif loop.index == 3 %}position-3{% endif %}">
+                            <td class="position-cell">
+                                {{ loop.index }}
+                            </td>
+                            <td class="trophy-cell">
+                                {% if loop.index == 1 %}
+                                    <i class='bx bxs-crown trophy-icon' style="color: #FFD700;"></i>
+                                {% elif loop.index == 2 %}
+                                    <i class='bx bxs-medal trophy-icon' style="color: #C0C0C0;"></i>
+                                {% elif loop.index == 3 %}
+                                    <i class='bx bxs-award trophy-icon' style="color: #CD7F32;"></i>
+                                {% else %}
+                                    <span class="badge-custom">#{{ loop.index }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ aluno.nome }}</strong>
+                            </td>
+                            <td>
+                                <span class="badge-custom">{{ aluno.turma }}</span>
+                            </td>
+                            <td>
+                                <strong>R$ {{ "%.2f"|format(aluno.total_rifas) }}</strong>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('minha_posicao', matricula=aluno.matricula) }}" class="btn-custom">
+                                    <i class='bx bx-show'></i>
+                                    Ver Detalhes
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert-custom">
+                <i class='bx bx-info-circle'></i>
+                Nenhum dado de arrecadação encontrado para exibir o ranking.
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="action-buttons">
+            <a href="{{ url_for('home') }}" class="btn-custom btn-secondary-custom">
+                <i class='bx bx-arrow-back'></i>
+                Voltar ao Início
+            </a>
+        </div>
+    </div>
+</body>
+</html>

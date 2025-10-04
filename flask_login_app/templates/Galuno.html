@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <title>Gerenciar Alunos</title>
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background: linear-gradient(135deg, #060049 0%, #0a0080 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .letreiro {
+            width: 100%;
+            height: 20px;
+            background-color: rgb(238, 143, 0);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .Registro_container {
+            width: 100%;
+            max-width: 1000px;
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 15px 35px rgba(6, 0, 73, 0.1);
+            margin: 20px;
+            border: 1px solid rgba(6, 0, 73, 0.05);
+        }
+
+        .Registro_container h1 {
+            color: #060049;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            text-align: center;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(6, 0, 73, 0.1);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .input-box2 {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .input-box2 label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #060049;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+        }
+
+        .input-box2 input,
+        .input-box2 select {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            background-color: #fafafa;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-box2 input:focus,
+        .input-box2 select:focus {
+            outline: none;
+            border-color: #060049;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(6, 0, 73, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .input-box2 input::placeholder {
+            color: #999;
+            font-style: italic;
+        }
+
+        .turma-section {
+            margin: 30px 0 40px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            border: 1px solid rgba(6, 0, 73, 0.1);
+        }
+
+        .turma-section label {
+            display: block;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #060049;
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+        }
+
+        .turma-section select {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            background-color: #fafafa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .turma-section select:focus {
+            outline: none;
+            border-color: #060049;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(6, 0, 73, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            min-width: 140px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #218838, #1aa085);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #060049, #0a0080);
+            color: white;
+            box-shadow: 0 4px 15px rgba(6, 0, 73, 0.3);
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #0a0080, #060049);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(6, 0, 73, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, rgb(238, 143, 0), rgb(255, 193, 7));
+            color: #060049;
+            box-shadow: 0 4px 15px rgba(238, 143, 0, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, rgb(255, 193, 7), rgb(238, 143, 0));
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(238, 143, 0, 0.4);
+        }
+
+        /* Arrecadações Styles */
+        .arrecadacoes-section {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .arrecadacoes-section h2 {
+            color: #060049;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .arrecadacoes-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .arrecadacoes-table th,
+        .arrecadacoes-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .arrecadacoes-table th {
+            background-color: #060049;
+            color: white;
+        }
+
+        .arrecadacoes-table tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+        }
+
+        .meta-section {
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+        }
+
+        .meta-section h3 {
+            color: #060049;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #28a745;
+            transition: width 0.3s ease;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            color: #060049;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        @media (max-width: 768px) {
+            .Registro_container {
+                width: 95%;
+                padding: 30px 20px;
+                margin: 10px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .Registro_container h1 {
+                font-size: 1.5rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .Registro_container {
+                width: 100%;
+                border-radius: 0;
+                padding: 20px;
+            }
+        }
+
+        .flash-popup.success {
+            background: #28a745;
+        }
+
+        .flash-popup.error {
+            background: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="flash-popup" style="position:fixed; top:40px; left:50%; transform:translateX(-50%); z-index:2000;">
+                {% for category, message in messages %}
+                    <div class="flash-popup {{ category }}" style="color:#fff; padding:16px 32px; border-radius:12px; font-size:1.15rem; box-shadow:0 4px 16px rgba(40,167,69,0.15); margin:8px 0; animation:fadeOutFlash 0.5s linear 3.5s forwards;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+            <script>
+                setTimeout(function() {
+                    var popup = document.getElementById('flash-popup');
+                    if (popup) popup.style.display = 'none';
+                }, 4000);
+            </script>
+            <style>
+                @keyframes fadeOutFlash {
+                    to { opacity: 0; }
+                }
+            </style>
+        {% endif %}
+    {% endwith %}
+    
+    <div class="Registro_container">
+        <!-- Formulário de Cadastro de Aluno -->
+        <form method="post" action="{{url_for ('Galuno')}}">
+            <h1><i class='bx bxs-user-plus'></i> Cadastrar Novo Aluno</h1>
+            
+            <div class="form-grid">
+                <div class="input-box2">
+                    <label for="nome_A">Nome do aluno:</label>
+                    <input name="nome_A" id="nome_A" placeholder="Digite o nome completo" type="text" required>
+                </div>
+                
+                <div class="input-box2">
+                    <label for="matricula_A">Matrícula:</label>
+                    <input name="matricula_A" id="matricula_A" placeholder="Digite a matrícula" type="text" required maxlength="9">
+                </div>
+                
+                <div class="input-box2">
+                    <label for="login_A">Login:</label>
+                    <input name="login_A" id="login_A" placeholder="Crie um login único" type="text" required>
+                </div>
+                
+                <div class="input-box2">
+                    <label for="senha_A">Senha:</label>
+                    <input name="senha_A" id="senha_A" placeholder="Crie uma senha segura" type="password" required maxlength="12">
+                </div>
+
+                <div class="input-box2">
+                    <label for="confirmar_senha_A">Confirmar Senha:</label>
+                    <input name="confirmar_senha_A" id="confirmar_senha_A" placeholder="Confirme a senha" type="password" required maxlength="12">
+                </div>
+
+
+            </div>
+            
+            <div class="turma-section">
+                <label for="turma_A">Selecione a turma:</label>
+                <select name="turma_A" id="turma_A" required>
+                    <option value="" disabled selected>Escolha uma turma</option>
+                    {% for turma in turmas %}
+                        <option value="{{ turma.id_turma }}">{{ turma.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="button-group">
+                <a href="{{url_for('editar_alunos')}}" class="btn btn-submit">
+                    <i class='bx bx-link-alt'></i> Editar Alunos
+                </a>
+                <input type="submit" class="btn btn-primary" value="Registrar Aluno">
+            </div>
+        </form>
+
+
+    </div>
+
+    <!-- Modal de Arrecadação -->
+    <div id="modalArrecadacao" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModalArrecadacao()">&times;</span>
+            <h2 id="titulo-modal">Nova Arrecadação</h2>
+            <form id="form-arrecadacao">
+                <input type="hidden" id="arrecadacao-id">
+                
+                <div class="input-box2">
+                    <label for="aluno-select">Aluno:</label>
+                    <select id="aluno-select" required>
+                        <option value="">Selecione um aluno</option>
+                    </select>
+                </div>
+                
+                <div class="input-box2">
+                    <label for="valor-arrecadacao">Valor (R$):</label>
+                    <input type="number" id="valor-arrecadacao" step="0.01" min="0.01" required>
+                </div>
+                
+                <div class="input-box2">
+                    <label for="data-arrecadacao">Data:</label>
+                    <input type="date" id="data-arrecadacao" required>
+                </div>
+                
+                <div class="input-box2">
+                    <label for="descricao-arrecadacao">Descrição:</label>
+                    <input type="text" id="descricao-arrecadacao" placeholder="Descrição da arrecadação" required>
+                </div>
+                
+                <div class="button-group">
+                    <button type="submit" class="btn btn-submit">Salvar</button>
+                    <button type="button" class="btn btn-primary" onclick="fecharModalArrecadacao()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const campo = document.getElementById("matricula_A");
+
+        campo.addEventListener("input", function () {
+        this.value = this.value.replace(/\D/g, ""); 
+     // Remove tudo que não é dígito (0–9)
+        });
+        // Variáveis globais
+        let arrecadacoes = [];
+        let alunos = [];
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarAlunos();
+            carregarArrecadacoes();
+            document.getElementById('data-arrecadacao').valueAsDate = new Date();
+        });
+
+        // Carregar alunos
+        function carregarAlunos() {
+            fetch('/api/alunos')
+                .then(response => response.json())
+                .then(data => {
+                    alunos = data.alunos;
+                    atualizarSelectAlunos();
+                })
+                .catch(error => console.error('Erro ao carregar alunos:', error));
+        }
+
+        // Atualizar select de alunos
+        function atualizarSelectAlunos() {
+            const select = document.getElementById('aluno-select');
+            select.innerHTML = '<option value="">Selecione um aluno</option>';
+            
+            alunos.forEach(aluno => {
+                const option = document.createElement('option');
+                option.value = aluno.matricula;
+                option.textContent = `${aluno.nome} (${aluno.nome_turma})`;
+                select.appendChild(option);
+            });
+        }
+
+        // Carregar arrecadações
+        function carregarArrecadacoes() {
+            fetch('/api/arrecadacoes')
+                .then(response => response.json())
+                .then(data => {
+                    arrecadacoes = data;
+                    atualizarTabelaArrecadacoes();
+                    atualizarEstatisticas();
+                })
+                .catch(error => console.error('Erro ao carregar arrecadações:', error));
+        }
+
+        // Atualizar tabela de arrecadações
+        function atualizarTabelaArrecadacoes() {
+            const tbody = document.getElementById('tabela-arrecadacoes');
+            tbody.innerHTML = '';
+            
+            arrecadacoes.forEach(arrecadacao => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${arrecadacao.nome_aluno}</td>
+                    <td>R$ ${parseFloat(arrecadacao.valor).toFixed(2)}</td>
+                    <td>${new Date(arrecadacao.data_arrecadacao).toLocaleDateString('pt-BR')}</td>
+                    <td>${arrecadacao.descricao}</td>
+                    <td>
+                        <button class="btn btn-warning" onclick="editarArrecadacao(${arrecadacao.id})">
+                            <i class='bx bx-edit'></i>
+                        </button>
+                        <button class="btn btn-danger" onclick="excluirArrecadacao(${arrecadacao.id})">
+                            <i class='bx bx-trash'></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Atualizar estatísticas
+        function atualizarEstatisticas() {
+            fetch('/api/estatisticas')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('meta-turma').textContent = `R$ ${parseFloat(data.meta_turma).toFixed(2)}`;
+                    document.getElementById('total-arrecadado').textContent = `R$ ${parseFloat(data.total_arrecadado).toFixed(2)}`;
+                    document.getElementById('progresso-percentual').textContent = `${data.progresso_percentual}%`;
+                })
+                .catch(error => console.error('Erro ao carregar estatísticas:', error));
+        }
+
+        // Modal functions
+        function abrirModalArrecadacao() {
+            document.getElementById('modalArrecadacao').style.display = 'block';
+            document.getElementById('titulo-modal').textContent = 'Nova Arrecadação';
+            document.getElementById('form-arrecadacao').reset();
+            document.getElementById('arrecadacao-id').value = '';
+        }
+
+        function fecharModalArrecadacao() {
+            document.getElementById('modalArrecadacao').style.display = 'none';
+        }
+
+        // Form submission
+        document.getElementById('form-arrecadacao').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('arrecadacao-id').value;
+            const data = {
+                matricula: document.getElementById('aluno-select').value,
+                valor: parseFloat(document.getElementById('valor-arrecadacao').value),
+                data_arrecadacao: document.getElementById('data-arrecadacao').value,
+                descricao: document.getElementById('descricao-arrecadacao').value
+            };
+
+            const url = id ? `/api/arrecadacoes/${id}` : '/api/arrecadacoes';
+            const method = id ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    fecharModalArrecadacao();
+                    carregarArrecadacoes();
+                    atualizarEstatisticas();
+                } else {
+                    alert('Erro ao salvar arrecadação');
+                }
+            })
+            .catch(error => console.error('Erro:', error));
+        });
+
+        // Editar arrecadação
+        function editarArrecadacao(id) {
+            const arrecadacao = arrecadacoes.find(a => a.id === id);
+            if (arrecadacao) {
+                document.getElementById('arrecadacao-id').value = id;
+                document.getElementById('aluno-select').value = arrecadacao.matricula;
+                document.getElementById('valor-arrecadacao').value = arrecadacao.valor;
+                document.getElementById('data-arrecadacao').value = arrecadacao.data_arrecadacao;
+                document.getElementById('descricao-arrecadacao').value = arrecadacao.descricao;
+                
+                document.getElementById('titulo-modal').textContent = 'Editar Arrecadação';
+                document.getElementById('modalArrecadacao').style.display = 'block';
+            }
+        }
+
+        // Excluir arrecadação
+        function excluirArrecadacao(id) {
+            if (confirm('Tem certeza que deseja excluir esta arrecadação?')) {
+                fetch(`/api/arrecadacoes/${id}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        carregarArrecadacoes();
+                        atualizarEstatisticas();
+                    } else {
+                        alert('Erro ao excluir arrecadação');
+                    }
+                })
+                .catch(error => console.error('Erro:', error));
+            }
+        }
+
+
+
+        // Atualizar dados
+        function atualizarDados() {
+            carregarArrecadacoes();
+            atualizarEstatisticas();
+        }
+
+        // Fechar modal ao clicar fora
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalArrecadacao');
+            if (event.target == modal) {
+                fecharModalArrecadacao();
+            }
+        }
+
+        // Validação de senha no formulário de cadastro de aluno
+        document.querySelector('form[action*="Galuno"]').addEventListener('submit', function(e) {
+            const matricula = document.getElementById('matricula_A').value;
+            const senha = document.getElementById('senha_A').value;
+            const confirmarSenha = document.getElementById('confirmar_senha_A').value;
+
+            if (matricula.length > 9) {
+                e.preventDefault();
+                alert('A matrícula deve ter no máximo 9 caracteres.');
+                return false;
+            }
+
+            if (senha !== confirmarSenha) {
+                e.preventDefault();
+                alert('As senhas não coincidem. Por favor, verifique e tente novamente.');
+                return false;
+            }
+
+            if (senha.length < 6) {
+                e.preventDefault();
+                alert('A senha deve ter pelo menos 6 caracteres.');
+                return false;
+            }
+
+            if (senha.length > 12) {
+                e.preventDefault();
+                alert('A senha deve ter no máximo 12 caracteres.');
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>

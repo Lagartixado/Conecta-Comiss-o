@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - ConectaC</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background: linear-gradient(135deg, #060049 0%, #0a0080 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .letreiro {
+            width: 100%;
+            height: 20px;
+            background-color: rgb(238, 143, 0);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .home-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header-section h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-section p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+        }
+
+        .welcome-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .welcome-card h2 {
+            color: #060049;
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .welcome-card p {
+            color: #666;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .action-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-card i {
+            font-size: 3rem;
+            color: #060049;
+            margin-bottom: 15px;
+        }
+
+        .action-card h3 {
+            color: #060049;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .action-card p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .logout-section {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .logout-btn, .editar-conta-btn {
+            background: linear-gradient(135deg, #EE8F00, #ff9500);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin: 0 10px;
+        }
+
+        .logout-btn:hover, .editar-conta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(238, 143, 0, 0.4);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #060049;
+            font-size: 1.8rem;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .modal-footer {
+            text-align: center;
+        }
+
+        .modal-footer button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+
+        .btn-primary {
+            background: #060049;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #ccc;
+            color: #333;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .home-container {
+                margin: 20px auto;
+                padding: 10px;
+            }
+
+            .header-section h1 {
+                font-size: 2rem;
+            }
+
+            .action-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .action-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+     {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="flash-popup" style="position:fixed; top:40px; left:50%; transform:translateX(-50%); z-index:2000;">
+                {% for category, message in messages %}
+                    <div class="flash-popup {{ category }}" style="color:#fff; padding:16px 32px; border-radius:12px; font-size:1.15rem; box-shadow:0 4px 16px rgba(40,167,69,0.15); margin:8px 0; animation:fadeOutFlash 0.5s linear 3.5s forwards;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+            <script>
+                setTimeout(function() {
+                    var popup = document.getElementById('flash-popup');
+                    if (popup) popup.style.display = 'none';
+                }, 4000);
+            </script>
+                <style>
+                    @keyframes fadeOutFlash {
+                        to { opacity: 0; }
+                    }
+                    .flash-popup {
+                        color: #fff;
+                        padding: 16px 32px;
+                        border-radius: 12px;
+                        font-size: 1.15rem;
+                        margin: 8px 0;
+                        animation: fadeOutFlash 0.5s linear 3.5s forwards;
+                    }
+                    .flash-popup.success {
+                        background: #28a745;
+                        box-shadow: 0 4px 16px rgba(40,167,69,0.15);
+                    }
+                    .flash-popup.error {
+                        background: #dc3545;
+                        box-shadow: 0 4px 16px rgba(220,53,69,0.15);
+                    }
+                </style>
+        {% endif %}
+    {% endwith %}
+
+    <div class="home-container">
+        <div class="header-section">
+            <h1><i class='bx bxs-home'></i> Bem-vindo ao ConectaC</h1>
+            <p>Olá, {{ usuario }}! Acesse as funcionalidades do sistema.</p>
+        </div>
+
+        <div class="welcome-card">
+            <h2>Sistema de Gerenciamento Escolar</h2>
+            <p>
+                {% if session['tipo_usuario'] == 'admin' %}
+                    Você está logado como administrador. Aproveite todas as funcionalidades do sistema.
+                {% else %}
+                    Você está logado como aluno. Acesse suas informações e acompanhe seu progresso.
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="action-grid">
+            {% if session['tipo_usuario'] == 'admin' %}
+            <a href="{{ url_for('cadastrar_turma') }}" class="action-card">
+                <i class='bx bxs-group'></i>
+                <h3>Cadastrar Turma</h3>
+                <p>Cadastrar novas turmas no sistema</p>
+            </a>
+
+                <a href="{{ url_for('editar_alunos') }}" class="action-card">
+                    <i class='bx bxs-edit'></i>
+                    <h3>Gerenciar Alunos</h3>
+                    <p>Gerenciar alunos e seus dados</p>
+                </a>
+
+                <a href="{{ url_for('cadastrar_filtros') }}" class="action-card">
+                    <i class='bx bxs-filter-alt'></i>
+                    <h3>Cadastrar itens</h3>
+                    <p>Cadastre itens para eventos, rifas e produtos</p>
+                </a>
+
+                <a href="{{ url_for('registrar_arrecadacao') }}" class="action-card">
+                    <i class='bx bx-money'></i>
+                    <h3>Registrar Arrecadação</h3>
+                    <p>Registrar arrecadações feitas pelos alunos</p>
+                </a>
+
+
+                {% if session.get('nivel') == 'admin0' %}
+
+                <a href="{{ url_for('editar_admins') }}" class="action-card">
+                    <i class='bx bxs-cog'></i>
+                    <h3>Gerenciar administradores</h3>
+                    <p>Gerencie os administradores do sistema</p>
+                </a>
+                {% endif %}
+
+            {% else %}
+                {% if session.get('matricula') %}
+                <a href="{{ url_for('dados_aluno', matricula=session['matricula']) }}" class="action-card">
+                    <i class='bx bxs-user'></i>
+                    <h3>Meus Dados</h3>
+                    <p>Visualizar suas informações e progresso</p>
+                </a>
+                {% else %}
+                <div class="action-card" style="opacity: 0.6; cursor: not-allowed;">
+                    <i class='bx bxs-user'></i>
+                    <h3>Meus Dados</h3>
+                    <p>Matrícula não disponível</p>
+                </div>
+                {% endif %}
+            {% endif %}
+            <a href="{{ url_for('fundo_comissao') }}" class="action-card">
+                <i class='bx bxs-bank'></i>
+                <h3>Extrato da Comissão</h3>
+                <p>Visualizar fundo e despesas da comissão</p>
+            </a>
+            {% if session['tipo_usuario'] == 'aluno' %}
+             <a href="{{ url_for('perguntas') }}" class="action-card">
+                <i class='bx bxs-message-square-detail'></i>
+                <h3>Perguntas & Respostas</h3>
+                <p>Envie perguntas aos administradores e veja respostas públicas</p>
+             </a>
+            {% endif %}
+            <a href="{{ url_for('links') }}" class="action-card">
+                <i class='bx bxs-camera'></i>
+                <h3>Galeria de fotos</h3>
+                <p>Acesse os drivers de fotos dos alunos</p>
+            </a>
+            <a href="{{ url_for('ranking') }}" class="action-card">
+                <i class='bx bxs-trophy'></i>
+                <h3>Ranking</h3>
+                <p>Ver ranking de arrecadações em rifas</p>
+            </a>
+        </div>
+
+        <div class="logout-section">
+            {% if session.get('nivel') == 'admin0' %}
+            <button class="editar-conta-btn" onclick="openModal()">
+                <i class='bx bxs-edit'></i> Editar Conta
+            </button>
+            {% endif %}
+            <a href="{{ url_for('logout') }}" class="logout-btn" style="margin-top:20px;">
+                <i class='bx bx-log-out'></i> Sair do Sistema
+            </a>
+        </div>
+
+        <!-- Modal for Editing Account -->
+        <div id="editAccountModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <div class="modal-header">
+                    <h2>Editar Conta</h2>
+                </div>
+                <form id="editAccountForm" method="POST" action="{{ url_for('editar_conta_admin0') }}">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="novo_login">Novo Login:</label>
+                            <input type="text" id="novo_login" name="novo_login" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="nova_senha">Nova Senha:</label>
+                            <input type="password" id="nova_senha" name="nova_senha" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmar_senha">Confirmar Nova Senha:</label>
+                            <input type="password" id="confirmar_senha" name="confirmar_senha" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" onclick="closeModal()">Cancelar</button>
+                        <button type="submit" class="btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('editAccountModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('editAccountModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('editAccountModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Form validation
+        document.getElementById('editAccountForm').addEventListener('submit', function(e) {
+            const senha = document.getElementById('nova_senha').value;
+            const confirmar = document.getElementById('confirmar_senha').value;
+            if (senha !== confirmar) {
+                alert('As senhas não coincidem!');
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

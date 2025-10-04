@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Administrador - ConectaC</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        :root {
+            --primary-color: #060049;
+            --secondary-color: #0a0080;
+            --accent-color: #EE8F00;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --light-bg: #f8f9fa;
+            --border-color: #dee2e6;
+            --text-muted: #6c757d;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --border-radius: 15px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .admin-container {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-container {
+            padding: 40px 30px;
+        }
+
+        .form-card {
+            background: var(--light-bg);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(6, 0, 73, 0.1);
+        }
+
+        .form-input.error {
+            border-color: var(--danger-color);
+            background: #fff5f5;
+        }
+
+        .form-input.success {
+            border-color: var(--success-color);
+            background: #f0fff4;
+        }
+
+        .password-toggle {
+            position: relative;
+        }
+
+        .toggle-btn {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 20px;
+            padding: 5px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(6, 0, 73, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--text-muted);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+            transform: translateY(-2px);
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .restricted {
+            text-align: center;
+            padding: 60px 30px;
+        }
+
+        .restricted-icon {
+            font-size: 64px;
+            color: var(--danger-color);
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .success-animation {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .success-animation i {
+            font-size: 64px;
+            color: var(--success-color);
+            margin-bottom: 20px;
+            animation: bounce 1s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+
+        @media (max-width: 480px) {
+            .admin-container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        {% if session.get('tipo_usuario') == 'admin' %}
+            <div class="header">
+                <h1><i class='bx bxs-user-badge'></i> Cadastrar Administrador</h1>
+                <p>Crie um novo administrador com acesso completo ao sistema</p>
+            </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div id="flash-popup" style="position:fixed; top:40px; left:50%; transform:translateX(-50%); z-index:2000;">
+                    {% for category, message in messages %}
+                        <div class="flash-popup {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <script>
+                    setTimeout(function() {
+                        var popup = document.getElementById('flash-popup');
+                        if (popup) popup.style.display = 'none';
+                    }, 4000);
+                </script>
+                <style>
+                    @keyframes fadeOutFlash {
+                        to { opacity: 0; }
+                    }
+                    .flash-popup {
+                        color: #fff;
+                        padding: 16px 32px;
+                        border-radius: 12px;
+                        font-size: 1.15rem;
+                        margin: 8px 0;
+                        animation: fadeOutFlash 0.5s linear 3.5s forwards;
+                    }
+                    .flash-popup.success {
+                        background: #28a745;
+                        box-shadow: 0 4px 16px rgba(40,167,69,0.15);
+                    }
+                    .flash-popup.error {
+                        background: #dc3545;
+                        box-shadow: 0 4px 16px rgba(220,53,69,0.15);
+                    }
+                </style>
+            {% endif %}
+        {% endwith %}
+            <div class="form-container">
+                <div class="alert alert-info">
+                    <i class='bx bx-info-circle'></i>
+                    <div>
+                        <strong>Importante:</strong> Você está criando um novo administrador com acesso completo ao sistema ConectaC.
+                    </div>
+                </div>
+
+                <form method="post" action="{{ url_for('cadastrar_admin') }}" id="adminForm">
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label class="form-label" for="nome_admin">Nome Completo</label>
+                            <input type="text" 
+                                   class="form-input" 
+                                   name="nome_admin" 
+                                   id="nome_admin" 
+                                   placeholder="Digite o nome completo" 
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="login_admin">Login de Administrador</label>
+                            <input type="text" 
+                                   class="form-input" 
+                                   name="login_admin" 
+                                   id="login_admin" 
+                                   placeholder="Crie um login único" 
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="email_admin">matricula:</label>
+                            <input type="matricula" 
+                                   class="form-input" 
+                                   name="matricula" 
+                                   id="matricula" 
+                                   placeholder="Digite a matricula do aluno" 
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="senha_admin">Senha</label>
+                            <div class="password-toggle">
+                                <input type="password" 
+                                       class="form-input" 
+                                       name="senha_admin" 
+                                       id="senha_admin" 
+                                       placeholder="Crie uma senha segura" 
+                                       required>
+                                <button type="button" class="toggle-btn" onclick="togglePassword('senha_admin')">
+                                    <i class='bx bx-show'></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="confirmar_senha">Confirmar Senha</label>
+                            <div class="password-toggle">
+                                <input type="password" 
+                                       class="form-input" 
+                                       name="confirmar_senha" 
+                                       id="confirmar_senha" 
+                                       placeholder="Confirme a senha" 
+                                       required>
+                                <button type="button" class="toggle-btn" onclick="togglePassword('confirmar_senha')">
+                                    <i class='bx bx-show'></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="telefone_admin">Telefone (Opcional)</label>
+                            <input type="tel" 
+                                   class="form-input" 
+                                   name="telefone_admin" 
+                                   id="telefone_admin" 
+                                   placeholder="(00) 00000-0000">
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <a href="{{ url_for('home') }}" class="btn btn-secondary">
+                            <i class='bx bx-arrow-back'></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class='bx bx-user-plus'></i> Criar Administrador
+                        </button>
+                    </div>
+                </form>
+            </div>
+        {% else %}
+            <div class="restricted">
+                <i class='bx bx-error-circle restricted-icon'></i>
+                <h2>Acesso Restrito</h2>
+                <p>Apenas o administrador principal (admin0) pode criar novos administradores.</p>
+                <a href="{{ url_for('home') }}" class="btn btn-primary">
+                    <i class='bx bx-home'></i> Voltar ao Menu
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.nextElementSibling.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'bx bx-hide';
+            } else {
+                input.type = 'password';
+                icon.className = 'bx bx-show';
+            }
+        }
+
+        // Form validation
+        document.getElementById('adminForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const senha = document.getElementById('senha_admin').value;
+            const confirmar = document.getElementById('confirmar_senha').value;
+            const login = document.getElementById('login_admin').value;
+            const nome = document.getElementById('nome_admin').value;
+            const matricula = document.getElementById('matricula').value;
+            
+            // Reset error states
+            document.querySelectorAll('.form-input').forEach(input => {
+                input.classList.remove('error');
+            });
+            
+            let isValid = true;
+            
+            // Validate required fields
+            if (!nome.trim()) {
+                document.getElementById('nome_admin').classList.add('error');
+                isValid = false;
+            }
+            
+            if (!login.trim()) {
+                document.getElementById('login_admin').classList.add('error');
+                isValid = false;
+            }
+            
+            if (!matricula.trim()) {
+                document.getElementById('matricula').classList.add('error');
+                isValid = false;
+            }
+            
+            // Validate password
+            if (senha.length < 6) {
+                document.getElementById('senha_admin').classList.add('error');
+                alert('A senha deve ter pelo menos 6 caracteres!');
+                isValid = false;
+            }
+            
+            if (senha !== confirmar) {
+                document.getElementById('confirmar_senha').classList.add('error');
+                alert('As senhas não coincidem!');
+                isValid = false;
+            }
+            
+            if (isValid) {
+                // Show loading state
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.innerHTML = '<i class="bx bx-loader-alt loading"></i> Criando...';
+                submitBtn.disabled = true;
+                
+                // Submit form
+                this.submit();
+            }
+        });
+
+        // Real-time validation
+        document.getElementById('senha_admin').addEventListener('input', function() {
+            const senha = this.value;
+            const confirmar = document.getElementById('confirmar_senha');
+            
+            if (senha.length >= 6) {
+                this.classList.add('success');
+                this.classList.remove('error');
+            } else {
+                this.classList.add('error');
+                this.classList.remove('success');
+            }
+            
+            if (confirmar.value && senha !== confirmar.value) {
+                confirmar.classList.add('error');
+                confirmar.classList.remove('success');
+            } else if (confirmar.value && senha === confirmar.value) {
+                confirmar.classList.add('success');
+                confirmar.classList.remove('error');
+            }
+        });
+
+        document.getElementById('confirmar_senha').addEventListener('input', function() {
+            const senha = document.getElementById('senha_admin').value;
+            const confirmar = this.value;
+            
+            if (senha === confirmar && confirmar.length >= 6) {
+                this.classList.add('success');
+                this.classList.remove('error');
+            } else {
+                this.classList.add('error');
+                this.classList.remove('success');
+            }
+        });
+    </script>
+</body>
+</html>
