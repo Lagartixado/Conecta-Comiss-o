@@ -17,13 +17,14 @@
             justify-content: center;
         }
         .qa_container {
-            width: 100%;
-            max-width: 900px;
+            width: 95vw;
+            max-width: 1400px;
             background: white;
             border-radius: 15px;
             padding: 40px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            margin: 20px;
+            margin: 20px auto;
+            overflow-x: auto;
         }
         .qa_header {
             display: flex;
@@ -120,9 +121,49 @@
         }
         .qa-table th, .qa-table td {
             padding: 16px 14px;
-            text-align: center;
+            text-align: left;
             vertical-align: middle;
             font-size: 1rem;
+        }
+        .acoes-form {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .acoes-form select {
+            padding: 4px 8px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-weight: 600;
+            font-size: 0.9rem;
+            background-color: #f0f4ff;
+            color: #060049;
+            min-width: 100px;
+        }
+        .acoes-form button {
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .acoes-form .btn-primary {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+            color: white;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+        .acoes-form .btn-primary:hover {
+            background-color: #1e7e34;
+        }
+        .acoes-form .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            border: none;
+        }
+        .acoes-form .btn-danger:hover {
+            background-color: #c82333;
         }
         .qa-table th {
             background: linear-gradient(135deg, #060049, #0a0080);
@@ -235,30 +276,29 @@
                     <textarea id="pergunta" name="pergunta" required maxlength="200" oninput="atualizarContagem()"></textarea>
                     <div id="contador" style="text-align:right; color:#666; font-size:0.98rem; margin-top:4px;">0/200 caracteres</div>
                 </div>
-                <script>
-                    function atualizarContagem() {
-                        var textarea = document.getElementById('pergunta');
-                        var contador = document.getElementById('contador');
-                        contador.textContent = textarea.value.length + '/200 caracteres';
-                    }
-                    document.addEventListener('DOMContentLoaded', function() {
-                        atualizarContagem();
-                    });
-                </script>
-                </div>
                 <div class="form-group">
-                    {% if session.get('tipo_usuario') == 'admin' %}
-                        <label for="privacidade">Privacidade:</label>
-                        <select id="privacidade" name="privacidade" required>
-                            <option value="publica">Pública (todos podem ver)</option>
-                            <option value="privada" selected>Privada (apenas você verá a resposta)</option>
-                        </select>
-                    {% else %}
-                        <input type="hidden" id="privacidade" name="privacidade" value="privada">
-                    {% endif %}
+                {% if session.get('tipo_usuario') == 'admin' %}
+                    <label for="privacidade">Privacidade:</label>
+                    <select id="privacidade" name="privacidade" required>
+                        <option value="publica">Pública (todos podem ver)</option>
+                        <option value="privada" selected>Privada (apenas você verá a resposta)</option>
+                    </select>
+                {% else %}
+                    <input type="hidden" id="privacidade" name="privacidade" value="privada">
+                {% endif %}
                 </div>
                 <button type="submit" class="btn btn-primary"><i class='bx bx-send'></i> Enviar Pergunta</button>
             </form>
+            <script>
+                function atualizarContagem() {
+                    var textarea = document.getElementById('pergunta');
+                    var contador = document.getElementById('contador');
+                    contador.textContent = textarea.value.length + '/200 caracteres';
+                }
+                document.addEventListener('DOMContentLoaded', function() {
+                    atualizarContagem();
+                });
+            </script>
         </div>
         <div id="content-respostas" class="tab-content">
             <table class="qa-table">
@@ -299,18 +339,18 @@
                             <td>{{ qa.autor_nome or qa.autor_login or '-' }}</td>
                             <td>
                                 {% if qa.resposta %}
-                                <form method="POST" action="{{ url_for('alterar_privacidade', pergunta_id=qa.id) }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:6px; margin-bottom: 8px;">
-                                    <label for="nova_privacidade_{{ qa.id }}" style="font-weight: 600; font-size: 0.9rem;">Privacidade:</label>
-                                    <select id="nova_privacidade_{{ qa.id }}" name="nova_privacidade" required style="padding: 4px 8px; border-radius: 8px; border: 1px solid #ccc; font-weight: 600; font-size: 0.9rem; background-color: #f0f4ff; color: #060049;">
+                                <form method="POST" action="{{ url_for('alterar_privacidade', pergunta_id=qa.id) }}" class="acoes-form" style="margin-bottom: 8px;">
+                                    <label for="nova_privacidade_{{ qa.id }}" style="font-weight: 600; font-size: 0.9rem; margin-right: 8px;">Privacidade:</label>
+                                    <select id="nova_privacidade_{{ qa.id }}" name="nova_privacidade" required>
                                         <option value="publica" {% if qa.privacidade == 'publica' %}selected{% endif %}>Pública</option>
                                         <option value="privada" {% if qa.privacidade == 'privada' %}selected{% endif %}>Privada</option>
                                     </select>
-                                    <button type="submit" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.9rem; border-radius: 10px; font-weight: 700; background: linear-gradient(135deg, #28a745, #1e7e34); box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4); transition: background-color 0.3s ease;">
+                                    <button type="submit" class="btn btn-primary">
                                         <i class='bx bx-refresh'></i> Alterar
                                     </button>
                                 </form>
                                 {% endif %}
-                                <button class="btn" style="background:linear-gradient(135deg,#dc3545,#c82333);color:#fff;" onclick="abrirModalExcluir('{{ qa.id }}')">
+                                <button class="btn btn-danger" onclick="abrirModalExcluir('{{ qa.id }}')">
                                     <i class='bx bx-trash'></i> Excluir
                                 </button>
                             </td>

@@ -363,7 +363,7 @@
                 <h3>Extrato da Comissão</h3>
                 <p>Visualizar fundo e despesas da comissão</p>
             </a>
-            {% if session['tipo_usuario'] == 'aluno' %}
+            {% if session.get('nivel') != 'admin0' %}
              <a href="{{ url_for('perguntas') }}" class="action-card">
                 <i class='bx bxs-message-square-detail'></i>
                 <h3>Perguntas & Respostas</h3>
